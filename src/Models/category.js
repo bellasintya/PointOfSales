@@ -13,10 +13,10 @@ module.exports = {
 	},
 	postCategories: req => {
 		return new Promise ((resolve, reject) => {
-			const body = req.body;
+			const name = req.body.name || req.params.name;
 			connection.query (
 				'INSERT INTO categories SET name=?',
-				[body.name], 
+				[name], 
 				(err, response) => {
 					if (!err){
 						resolve (response);
@@ -26,7 +26,7 @@ module.exports = {
 				}
 			);
 		});
-	},
+	}, 
 	updateCategory: req => {
 		return new Promise ((resolve, reject) => {
 			const body = req.body;
@@ -48,11 +48,41 @@ module.exports = {
 		return new Promise ((resolve, reject) => {
 			let id = req.params.id;
 			connection.query (
-				`DELETE FROM categories WHERE id_category="${id}"`,
+				`DELETE FROM categories WHERE id_category = "${id}"`,
 				(err, response) => {
 					if (!err){
-						resolve(response);
+						resolve (response);
 					} else{
+						reject (err);
+					}
+				}
+			);
+		});
+	},
+	getCategory: req => {
+		return new Promise ((resolve, reject) => {
+			let id = req.params.id;
+			connection.query (
+				`SELECT * FROM categories WHERE id_category = ?`, [id],
+				(err, response) => {
+					if (!err){
+						resolve (response);
+					} else {
+						reject (err);
+					}
+				}
+			);
+		});
+	},
+	getCategoryByName: req => {
+		return new Promise ((resolve, reject) => {
+			const name = req.params.name || req.body.name;
+			connection.query (
+				`SELECT * FROM categories WHERE name = "${name}"`, 
+				(err, response) => {
+					if (!err){
+						resolve (response);
+					} else {
 						reject (err);
 					}
 				}

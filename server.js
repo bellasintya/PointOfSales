@@ -11,6 +11,8 @@ const port 	 = 8080;
 const nodeEnv = 'Development';
 
 //set up an authorized origin
+
+
 server.use (cors({
 	method: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
 	origin: '*'
@@ -25,6 +27,17 @@ server.use (logger ('dev'));
 server.use (bodyParser.json ());
 server.use (bodyParser.urlencoded ({extended: false}));
 
+/*server.use ((req,res, next) => {
+	res.header('Access-Control-Allow-Origin', "*");
+	res.header('Access-Control-Allow-Header',
+		'Origin, X-Requested-With, Content-Type, Accept, Authorization' );
+	if (req.methode ==='OPTIONS'){
+		res.header('Access-Control-Allow-Methods','*');
+		return form.success(res, 200, response);
+	}
+	next();
+})
+*/
 server.use ('/', Router);
 
 module.exports = server;

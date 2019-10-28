@@ -1,9 +1,9 @@
 const connection = require ('../Configs/connect');
 module.exports = {
-	getProducts: () => {
+	getProducts: (queryLimit, sort, order, querySearch, queryCategory) => {
 		return new Promise ((resolve, reject) => {
 			connection.query (
-				'SELECT id_product, products.name as name, price, quantity, description, image, date_added, date_updated, categories.name as name_category FROM products JOIN categories USING (id_category)', 
+				`SELECT id_product, products.name as name, price, quantity, description, image, products.date_added as added, products.date_updated as updated, categories.name as name_category FROM products JOIN categories USING (id_category) ${querySearch} ${queryCategory} ORDER BY products.${sort} ${order} ${queryLimit}`, 
 				(err,response) => {
 				if (!err){
 					resolve (response);
@@ -28,23 +28,12 @@ module.exports = {
 			);
 		});
 	},
-	updateProduct : (req, product) => {
+	updateProduct : (data, id) => {
 		return new Promise ((resolve, reject) => {
-			const item = product[0];
-			let id = req.params.id; 
-			const body = req.body;
-			let name = body.name? body.name : item.name; 
-			let price = body.price? body.price: item.price;
-			let quantity = body.quantity? body.quantity: item.quantity; 
-			let description = body.description? body.description: item.description;
-			let image = body.image? body.image: item.image;
-
-			connection.query (`UPDATE products SET name="${name}", price="${price}", 
-			quantity="${quantity}", description="${description}", image="${image}" 
-			WHERE id_product ="${id}"`,
-				(err, response) => {
+			connection.query (`UPDATE products SET ? WHERE id_product = ? `, [data, id],
+				(err, result) => {
 					if (!err){
-						resolve (response);
+						resolve (result);
 					} else{
 						reject (err);
 					}
@@ -66,10 +55,9 @@ module.exports = {
 			);
 		})
 	},
-	getProduct : req => {
+	getProduct : id => {
 		return new Promise ((resolve, reject) => {
-			let id = req.params.id;
-			connection.query (`SELECT id_product, products.name as name, price, quantity, description, image, date_added, date_updated, categories.name as name_category FROM products JOIN categories USING (id_category) WHERE id_product = ${id}`,
+			connection.query (`SELECT id_product, products.name as name, price, quantity, description, image, products.date_added as date_added, products.date_updated as date_updated, categories.name as name_category FROM products JOIN categories USING (id_category) WHERE id_product = ${id}`,
 				(err, response) => {
 					if (!err){
 						resolve (response);
@@ -109,25 +97,17 @@ module.exports = {
 			);
 		})
 	},
-	reduceQuantity : req => {
+	reduceQuantity : (amount,id) => {
 		return new Promise ((resolve, reject) => {
-			let id = req.params.id;
-			let amount = req.body.amount;
-			if (amount > 0){
-				connection.query (`UPDATE products SET quantity = quantity - "${amount}" WHERE id_product = "${id}"`,
-					(err, response) => {
-						if(!err){
-							resolve (response); 
-						} else{
-							reject (err);
-						}
+			connection.query (`UPDATE products SET quantity = quantity - "${amount}" WHERE id_product = "${id}"`,
+				(err, response) => {
+					if(!err){
+						resolve (response); 
+					} else{
+						reject (err);
 					}
-				);
-			}
-			else {
-				const status = 400;
-				reject (status);
-			}
+				}
+			);
 		})
 	},
 	sortProducts : req => {
@@ -135,7 +115,7 @@ module.exports = {
 			let order = req.order;
 			let sortBy = req.sortBy;
 			connection.query (
-				`SELECT id_product, products.name as name, price, quantity, description, image, date_added, date_updated, categories.name as category FROM products JOIN categories USING (id_category) ORDER BY ${sortBy} ${order}`,
+				`SELECT id_product, products.name as name, price, quantity, description, image, products.date_added as added, products.date_updated as updated, categories.name as category FROM products JOIN categories USING (id_category) ORDER BY ${sortBy} ${order}`,
 				(err, response) => {
 					if(!err){
 						resolve (response); 

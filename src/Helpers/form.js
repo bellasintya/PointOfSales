@@ -7,8 +7,8 @@ module.exports = {
 				quantity: item.quantity,
 				description: item.description,
 				image: item.image,
-				date_added: item.date_added,
-				date_updated: item.date_updated,
+				date_added: item.added,
+				date_updated: item.updated,
 				category: item.category,
 			};
 		});
@@ -43,5 +43,21 @@ module.exports = {
 			result: form,
 		};
 		res.json (format);
+	},
+
+	error: (res, message) => {
+		let form = {
+			status: 400,
+			message
+		};
+		res.json (form);
+	},
+
+	successSign: (res, result) => {
+		let form = {
+			status: 200,
+			result
+		}
+		res.json(form);
 	},
 };

@@ -3,10 +3,27 @@ const form = require ('../Helpers/form');
 
 module.exports = {
 	getProducts : (req,res) => {
-		productModel.getProducts ()
-		.then (response => {
-			form.success (res, 200, response);
-		}).catch (error => {
+		const numPerPage = parseInt(req.query.limit) || null
+		const activePage = req.query.page || 1
+		const beginData = numPerPage * (activePage - 1)
+		const sort = req.query.sort || 'name'
+		const order = req.query.order || 'DESC'
+		const search = req.query.search || null
+		//const category = req.query.category || null
+		const queryCategory = (numPerPage !== null) ? `LIMIT ${beginData}, ${numPerPage}`: ''
+		const queryLimit = (numPerPage !== null) ? `LIMIT ${beginData}, ${numPerPage}`: ''
+		const querySearch = (search !== null) ? `AND product.name LIKE '%${search}%'`: ''
+
+		productModel.getProducts (queryLimit, sort, order, querySearch, queryCategory)
+		.then (result => res.json ({
+			status: 200,
+	        currentPage: activePage,
+	        limit: numPerPage,
+	        sort, 
+	        order,
+	        search,
+	        result
+		})).catch (error => {
 			res.send ('Cannot get products');
 			console.log (error);
 		});
@@ -25,45 +42,65 @@ module.exports = {
 			console.log (err);
 		});
 	},
-	updateProduct : (req, res) => {
+	updateProduct : (req, res) => {		
+		let id = req.params.id;
 		productModel
-		.getProduct (req)
-		.then (response => {
-			let product = form.data(response); 
-			return product;
+		.getProduct (id)
+		.then (result => {
+			if (result.length !== 0){
+				const item = result[0];
+				const body = req.body;
+
+				let name = body.name? body.name : item.name; 
+				let price = body.price? body.price: item.price;
+				let quantity = body.quantity? body.quantity: item.quantity; 
+				let description = body.description? body.description: item.description;
+				let image = body.image? body.image: item.image;
+
+				const data = {
+					name: name,
+					price: price,
+					quantity: quantity,
+					description: description,
+					image: image,
+				}
+
+				return productModel.updateProduct(data, id)
+				.then (result => res.json ({
+					status: 200,
+					message: 'Product has succesfully updated!',
+					id,
+					data
+				}))
+				.catch (err => console.log (err))
+
+			} else {
+				return res.status (400).send ({
+					status: 400,
+					id,
+					message: 'Product does not exist'
+				})
+			}
 		})
-		.then (product => {
-			productModel
-			.updateProduct (req, product)
-			.then (response => {
-				res.json ({
-				message: 'Succesfully updated product!',
-				response
-				});
-			})
-		})
-		.catch (error => {
-			res.send ('Failed update product!');
-			console.log (err);
-		});
 	},
 	deleteProduct : (req, res) => {
 		productModel
 		.deleteProduct (req)
 		.then (response => {
 			res.json ({
-			message: 'Succesfully delete product!',
-			response
+				status : 200, 
+				message: 'Succesfully delete product!'
 			});
 		})
 		.catch (err => {
-			res.send ('Failed delete product!');
+			res.send ('Failed to delete product!');
 			console.log (err);
 		});
 	},
 	getProduct : (req, res) => {
+		let id = req.params.id;
 		productModel.
-		getProduct (req)
+		getProduct (id)
 		.then (response => {
 			form.success (res, 200, response);
 		}).catch (error => {
@@ -73,6 +110,7 @@ module.exports = {
 	},
 	searchProduct : (req, res) => {
 		req = req.query;
+		//console.log (req);
 		productModel
 		.searchProduct (req)
 		.then (response => {
@@ -97,18 +135,51 @@ module.exports = {
 		});
 	},
 	reduceQuantity : (req, res) => {
+		let id = req.params.id;
+		let amount = req.body.amount;
+
 		productModel
-		.reduceQuantity (req)
-		.then (response => {
-			res.json ({
-			message: 'Succesfully reduce quantity from product!',
-			response
-			});
+		.getProduct (id)
+		.then (result => {
+			if (result.length !== 0){
+				const item = result[0];
+	
+				let qty = item.quantity; 
+				console.log (qty);
+
+				if (qty > 0){
+					if (amount > 0){
+						return productModel.reduceQuantity(amount, id)
+						.then (result => res.json ({
+							status: 200,
+							message: 'Quantity product has succesfully updated!',
+							id
+						}))
+						.catch (err => console.log (err))
+					} else{
+						return res.status (400).send ({
+							status: 400,
+							id,
+							message: `Amount cannot below 0`
+						})
+					}
+
+				} else{
+					return res.status (400).send ({
+						status: 400,
+						id,
+						message: `Product Out of Stock`
+					})
+				}
+
+			} else {
+				return res.status (400).send ({
+					status: 400,
+					id,
+					message: 'Product does not exist'
+				})
+			}
 		})
-		.catch (status => {
-			if (status == 400)
-				res.status (status).send ("Amount Should More Than 0");
-		});
 	},
 	sortProducts : (req, res) => {
 		req = req.query;
