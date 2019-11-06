@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server",
-    "dev": "concurrently \"npm run start\" \"npm --prefix ./client\""
+    "dev": "concurrently \"npm run start\" \"npm --prefix ./fe-pos run start \""
   },
   "author": "Bella Sintya",
   "license": "ISC",

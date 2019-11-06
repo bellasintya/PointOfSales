@@ -3,7 +3,7 @@ module.exports = {
 	getProducts: (queryLimit, sort, order, querySearch, queryCategory) => {
 		return new Promise ((resolve, reject) => {
 			connection.query (
-				`SELECT id_product, products.name as name, price, quantity, description, image, products.date_added as added, products.date_updated as updated, categories.name as name_category FROM products JOIN categories USING (id_category) ${querySearch} ${queryCategory} ORDER BY products.${sort} ${order} ${queryLimit}`, 
+				`SELECT id_product, products.name as name, price, quantity, description, image, products.date_added as added, products.date_updated as updated, categories.name as name_category, id_category FROM products JOIN categories USING (id_category) ${querySearch} ${queryCategory} ORDER BY products.${sort} ${order} ${queryLimit}`, 
 				(err,response) => {
 				if (!err){
 					resolve (response);
@@ -13,11 +13,10 @@ module.exports = {
 			});
 		});
 	},
-	postProducts: req => {
+	postProducts: (data) => {
 		return new Promise ((resolve, reject) => {
-			const body = req.body;
-			connection.query ('INSERT INTO products SET name=?, price=?, quantity=?, description=?, image=?, id_category=?', 
-				[body.name, body.price, body.quantity, body.description, body.image, body.id_category], 
+			connection.query ('INSERT INTO products SET ?', 
+				[data], 
 				(err, response) => {
 					if (!err){
 						resolve (response);
@@ -41,9 +40,8 @@ module.exports = {
 			);
 		});
 	},
-	deleteProduct : req => {
+	deleteProduct : (id) => {
 		return new Promise ((resolve, reject) => {
-			let id = req.params.id;
 			connection.query (`DELETE FROM products WHERE id_product = ${id}`,
 				(err, response) => {
 					if (!err){

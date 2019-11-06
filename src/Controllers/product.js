@@ -6,8 +6,8 @@ module.exports = {
 		const numPerPage = parseInt(req.query.limit) || null
 		const activePage = req.query.page || 1
 		const beginData = numPerPage * (activePage - 1)
-		const sort = req.query.sort || 'name'
-		const order = req.query.order || 'DESC'
+		const sort = req.query.sort || 'date_added'
+		const order = req.query.order || 'ASC'
 		const search = req.query.search || null
 		//const category = req.query.category || null
 		const queryCategory = (numPerPage !== null) ? `LIMIT ${beginData}, ${numPerPage}`: ''
@@ -29,12 +29,30 @@ module.exports = {
 		});
 	},
 	postProducts : (req, res) => {
+		const name = req.body.name, 
+			price = req.body.price, 
+			quantity = req.body.quantity, 
+			description = req.body.description, 
+			image = req.body.image, 
+			id_category = req.body.id_category;
+
+		let data = {
+			name : name,
+			price: price,
+			quantity: quantity,
+			description: description,
+			image: image,
+			id_category: id_category
+		} 
 		productModel
-		.postProducts (req)
+		.postProducts (data)
 		.then (response => {
 			res.json ({
-				message: 'Succesfully added product!',
-				response
+				result: {
+					data,
+					message: 'Succesfully added product!',
+					response,
+				}
 			});
 		})
 		.catch (err => {
@@ -56,6 +74,7 @@ module.exports = {
 				let quantity = body.quantity? body.quantity: item.quantity; 
 				let description = body.description? body.description: item.description;
 				let image = body.image? body.image: item.image;
+				let id_category = body.id_category? body.id_category: item.id_category;
 
 				const data = {
 					name: name,
@@ -63,14 +82,23 @@ module.exports = {
 					quantity: quantity,
 					description: description,
 					image: image,
+					id_category: id_category,
 				}
 
 				return productModel.updateProduct(data, id)
-				.then (result => res.json ({
+				.then (response => res.json ({
 					status: 200,
 					message: 'Product has succesfully updated!',
-					id,
-					data
+					result : {
+						id_product: parseInt(id),
+						name: name,
+						price: price,
+						quantity: quantity,
+						description: description,
+						image: image,
+						id_category: id_category,
+					},
+					response: response
 				}))
 				.catch (err => console.log (err))
 
@@ -84,12 +112,17 @@ module.exports = {
 		})
 	},
 	deleteProduct : (req, res) => {
+		const id = req.params.id;
 		productModel
-		.deleteProduct (req)
+		.deleteProduct (id)
 		.then (response => {
 			res.json ({
-				status : 200, 
-				message: 'Succesfully delete product!'
+				result : {
+					status: 200,
+					message: 'Product Deleted!',
+					id,
+					response,
+				}
 			});
 		})
 		.catch (err => {
@@ -153,7 +186,8 @@ module.exports = {
 						.then (result => res.json ({
 							status: 200,
 							message: 'Quantity product has succesfully updated!',
-							id
+							id, 
+							result
 						}))
 						.catch (err => console.log (err))
 					} else{

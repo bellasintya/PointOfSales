@@ -14,13 +14,15 @@ Router.get('/', (req, res) => {
     });
 })
 
-// Router.use ('/product', validateUser, product);
-// Router.use ('/category', validateUser, category);
-
-Router.use ('/product', product);
-Router.use ('/category', category);
+Router.use ('/product', validateUser, product);
+Router.use ('/category', validateUser, category);
+Router.use ('/transaction', validateUser, transaction);
+ 
 Router.use ('/user', user);
-Router.use ('/transaction', transaction);
+
+// Router.use ('/product', product);
+// Router.use ('/category', category);
+// Router.use ('/transaction', transaction);
 
 //Router.use ('/transaction', validateUser, transaction);
 

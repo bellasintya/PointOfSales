@@ -1,31 +1,40 @@
 const categoryModel = require ('../Models/category');
-const form = require ('../Helpers/form');
 const format = require ('../Helpers/form');
 
 module.exports = {
-	getCategories : (res) => {
+	getCategories : (req, res) => {
 		categoryModel.getCategories ()
-		.then (response => {
-			format.list (res, 200, response);
+		.then (result => {
+			format.list (res, 200, result);
 		})
 		.catch (error => {
 			console.log (error);
 		});
 	},
 	postCategories : (req,res) => {
+		const name = req.body.name || req.params.name;
+		data = {
+			name: name
+		}
 		categoryModel
 		.getCategoryByName (req)
 		.then (result => {
 			if (result.length == 0 ){
-				categoryModel.postCategories (req)
+				categoryModel.postCategories (data)
 					.then (response => {
 						res.json ({
 							message: "Succsessfully added category!",
-							response
+							response,
+							result : {
+								name: name
+							}
+							
 						});
 					})
 					.catch (err => {
-						console.log (err);
+						format.error (res, 'Error inserting data');
+						console.log(err);
+						
 					});
 				
 			} else {
@@ -36,20 +45,31 @@ module.exports = {
 			}
 		})	
 		.catch (err => {
-			form.error (res, err);
+			format.error (res, 'Error');
+			console.log (err)
 		})
 	},
 	updateCategory : (req,res) => {
+		const body = req.body;
+		let id = req.params.id;
+		let name = body.name;
+		data = {
+			name: name
+		}
 		categoryModel
 		.getCategory (req)
 		.then (result => {
 			if (result.length !== 0 ){
 				categoryModel
-				.updateCategory (req)
+				.updateCategory (data, id)
 				.then (response => {
 					res.json ({
 						message: "Succsessfully updated category!",
-						response
+						response,
+						result : {
+							id_category: parseInt(id),
+							name: name,
+						}
 					});
 				})
 				.catch (err => {
@@ -60,26 +80,33 @@ module.exports = {
 			else {
 				return res.status (400).send ({
 					status: 400,
-					message: `Can't find category!`
+					message: `Can't find category!`,
+					result
 				})
 			}
 		})	
 		.catch (err => {
-			form.error (res, err);
+			format.error (res, 'error updating category');
+			console.log(err);
+			
 		})
 	},
 	deleteCategory : (req, res) => {
+		let id = req.params.id;
 		categoryModel.getCategory (req)
 		.then (result => {
 			if (result.length !== 0 ){
-				categoryModel.deleteCategory (req)
+				categoryModel.deleteCategory (id)
 				.then (response => {
 					res.json ({
 						message: "Succsessfully delete category!",
-						response
+						response,
+						result : {
+							id_category: parseInt(id)
+						}
 					});
 				}).catch (err => {
-					res.send ('Failed delete category!');
+					res.status(400) .send ('Failed delete category!');
 					console.log (err);
 				});
 			}
@@ -91,7 +118,9 @@ module.exports = {
 			}
 		})	
 		.catch (err => {
-			form.error (res, err);
+			format.error (res, 'error deleting category');
+			console.log(err);
+			
 		})
 	},
 };

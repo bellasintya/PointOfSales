@@ -18,4 +18,4 @@ Router.delete ('/:id', userController.deleteUser);
 // Router.patch ('/:id', validateUser, userController.updateUser);
 // Router.delete ('/:id', validateUser, userController.deleteUser);
 
-module.exports = Router;
+module.exports = Router; 

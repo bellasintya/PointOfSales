@@ -6,6 +6,7 @@ const secretKey = process.env.SECRET_KEY;
 
 module.exports = {
     registerUser: (req, res) => {
+        console.log (req.body);
         if (req.body.full_name == null) return form.error (res, "Full name can't be empty");
         if (req.body.email == null) return form.error (res, "Email can't be empty");
         if (req.body.username == null) return form.error (res, "Username can't be empty");
@@ -29,9 +30,9 @@ module.exports = {
         })   
     },
     loginUser: (req, res) => {
+        console.log (req.body);
         if (req.body.username == null) return form.error (res, "Username can't be empty");
         if (req.body.password == null) return form.error (res, "Password can't be empty");
-   
         userModel
         .loginUser (req)
         .then (result => {
@@ -46,7 +47,7 @@ module.exports = {
                     form.successSign(res, {
                         user_id: result[0].id,
                         username: result[0].username,
-                        token: token
+                        token: token,
                     });
                 } else {
                     form.error (res, "Password incorrect")
