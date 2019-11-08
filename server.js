@@ -7,7 +7,7 @@ const cors = require ('cors'); //initialize the cors
 const Router = require ('./src/Routes/index');
 
 const server = express ();
-const port 	 = 8080;
+const port 	 = process.env.PORT || 8080;
 const nodeEnv = 'Development';
 
 //set up an authorized origin

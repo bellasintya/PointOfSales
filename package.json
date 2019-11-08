@@ -4,8 +4,11 @@
   "description": "Point of Sales 1",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server",
+    "start": "node server",
     "dev": "concurrently \"npm run start\" \"npm --prefix ./fe-pos run start \""
+  },
+  "engines": {
+    "node": "10.16.3"
   },
   "author": "Bella Sintya",
   "license": "ISC",
