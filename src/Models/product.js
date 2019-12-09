@@ -55,7 +55,7 @@ module.exports = {
 	},
 	getProduct : id => {
 		return new Promise ((resolve, reject) => {
-			connection.query (`SELECT id_product, products.name as name, price, quantity, description, image, products.date_added as date_added, products.date_updated as date_updated, categories.name as name_category FROM products JOIN categories USING (id_category) WHERE id_product = ${id}`,
+			connection.query (`SELECT id_product, products.name as name, price, quantity, description, image, products.date_added as date_added, products.date_updated as date_updated, categories.name as name_category, id_category FROM products JOIN categories USING (id_category) WHERE id_product = ${id}`,
 				(err, response) => {
 					if (!err){
 						resolve (response);
@@ -80,10 +80,8 @@ module.exports = {
 			);
 		})
 	},
-	addQuantity : req => {
+	addQuantity : (amount, id) => {
 		return new Promise ((resolve, reject) => {
-			let id = req.params.id;
-			let amount = req.body.amount; 
 			connection.query (`UPDATE products SET quantity = quantity + "${amount}" WHERE id_product = "${id}"`,
 				(err, response) => {
 					if(!err){

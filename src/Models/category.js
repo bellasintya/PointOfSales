@@ -57,7 +57,7 @@ module.exports = {
 	},
 	getCategory: req => {
 		return new Promise ((resolve, reject) => {
-			let id = req.params.id;
+			let id = req.params.id || req.body.id_category;		
 			connection.query (
 				`SELECT * FROM categories WHERE id_category = ?`, [id],
 				(err, response) => {
@@ -70,9 +70,8 @@ module.exports = {
 			);
 		});
 	},
-	getCategoryByName: req => {
+	getCategoryByName: (name) => {
 		return new Promise ((resolve, reject) => {
-			const name = req.body.name;
 			connection.query (
 				`SELECT * FROM categories WHERE name = "${name}"`, 
 				(err, response) => {

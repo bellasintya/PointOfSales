@@ -7,7 +7,7 @@ exports.validateUser = (req, res, next) => {
         if (err) {
             form.error (res, err.message);
         } else {
-            req.body.id_user = decoded.id;
+            req.body.id_user = decoded.id_user;
             req.body.username = decoded.username;
             next ();
         }

@@ -1,15 +1,10 @@
 const connection = require ('../Configs/connect');
-const bcrypt = require('bcrypt');
-const salt = bcrypt.genSaltSync(0);
 
 module.exports = {
-    registerUser: req => {
-        const body = req.body;
-        const pass = bcrypt.hashSync (body.password, salt);
-
+    registerUser: (data) => {
         return new Promise ((resolve, reject) => {
-            connection.query (`INSERT INTO users SET full_name =?, email =?, username = ?, password = ?`,
-            [body.full_name, body.email, body.username, pass], 
+            connection.query (`INSERT INTO users SET ?`,
+            [data], 
             (err, result) => {
                 if (!err) {
                     resolve (result);
@@ -28,8 +23,7 @@ module.exports = {
             })
         });
     },
-    getUsername: req => {
-        const username = req.params.username || req.body.username;
+    getUsername: (username) => {
         return new Promise ((resolve, reject) => {
             connection.query (`SELECT * FROM users WHERE username = ?`, 
             [username], (err, result) => {
@@ -51,9 +45,8 @@ module.exports = {
 			});
 		});
     },
-    getUser: req => {
+    getUser: (id) => {
         return new Promise ((resolve, reject) => {
-            const id = req.params.id; 
 			connection.query (
 				`SELECT * FROM users WHERE id_user = ?`, [id], 
 				(err,response) => {
@@ -78,9 +71,8 @@ module.exports = {
 			});
 		});
     },
-    deleteUser: req => {
+    deleteUser: (id) => {
 		return new Promise ((resolve, reject) => {
-			let id = req.params.id;
 			connection.query (`DELETE FROM users WHERE id_user = ${id}`,
 				(err, response) => {
 					if (!err){

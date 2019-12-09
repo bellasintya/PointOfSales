@@ -16,7 +16,7 @@ module.exports = {
     getTransaction: (id) => {
         return new Promise ((resolve, reject) => {
 			connection.query (
-				`SELECT * FROM transactions JOIN history_transaction ON (transactions.id_transaction = history_transaction.id_transaction) WHERE history_transaction.id_transaction = ${id}`, 
+				`SELECT * FROM transactions WHERE id_transaction = ${id}`, 
 				(err,response) => {
 				if (!err){
 					resolve (response);
@@ -25,7 +25,20 @@ module.exports = {
 				}
 			});
 		});
-    },
+	},
+	getDetailTransaction: (id) => {
+		return new Promise ((resolve, reject) => {
+			connection.query (
+				`SELECT * FROM transactions JOIN history_transaction ON (transactions.id_transaction = history_transaction.id_transaction) WHERE id_transaction = ${id}`, 
+				(err,response) => {
+				if (!err){
+					resolve (response);
+				} else{
+					reject (err);
+				}
+			});
+		});
+	},
     addTransaction: (id) => {
         return new Promise ((resolve, reject) => {
 			connection.query (
@@ -39,15 +52,11 @@ module.exports = {
 			});
 		});
     },
-    addDetails: (req) => {
+    addDetails: (data) => {
         return new Promise ((resolve, reject) => {
-            const id = req.body.id_transaction;
-            const id_product = req.body.id_product,
-                price = req.body.price,
-                quantity= req.body.quantity;
 			connection.query (
-                `INSERT INTO history_transaction SET id_product = ?, price = ?, quantity = ?, id_transaction =?`,
-                [id_product, price, quantity, id], 
+                `INSERT INTO history_transaction SET ?`,
+                [data], 
 				(err,response) => {
 				if (!err){
 					resolve (response);

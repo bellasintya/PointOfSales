@@ -60,4 +60,24 @@ module.exports = {
 		}
 		res.json(form);
 	},
+
+	successFormat: (res, result, message) => {
+		let format = {
+			status: 200,
+			message: message,
+			result
+		}
+		res.json(format)
+	},
+
+	
+	errorFormat: (res,error, message) => {
+		let format = {
+			status: 400,
+			message: message,
+			error
+		}
+		res.json(format)
+	}
+	
 };
