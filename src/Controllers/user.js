@@ -54,7 +54,8 @@ module.exports = {
                         .then(result => {
                             res.json({
                                 status: 200,
-                                message: 'User successfully created!'
+                                message: 'Successfully create account!', 
+                                result
                             });
                         })
                         .catch(err => {
@@ -65,7 +66,7 @@ module.exports = {
                 })
         }
         else {
-            form.error(res, "Fill all the data required (full_name, email, username, password)");
+            form.error(res, "Fill all data required");
         }
     },
 
@@ -101,7 +102,7 @@ module.exports = {
                     }
                 });
         } else {
-            form.error(res, "Fill all the data required (username, password)");
+            form.error(res, "Fill all data required");
         }
     },
     getUsers: (req, res) => {
@@ -162,9 +163,6 @@ module.exports = {
                     const item = result[0];
                     const body = req.body;
 
-
-                    console.log(body);
-
                     let full_name = body.full_name ? body.full_name : item.full_name;
                     let email = body.email ? body.email : item.email;
                     let username = body.username ? body.username : item.username;
@@ -176,7 +174,6 @@ module.exports = {
                         username: username,
                         password: password
                     }
-                    console.log(data);
                     userModel
                         .updateUser(data, id)
                         .then(response => {

@@ -177,15 +177,18 @@ module.exports = {
                                             if (result !== 0) {
                                                 productModel.reduceQuantity(qty, id_product)
                                                 .then (result => {
-                                                    console.log("berhasil", result);
+                                                    form.successFormat(
+                                                        res,
+                                                        result,
+                                                        "Successfully reduce quantity!"
+                                                    );
                                                 }).catch (error => {
-                                                    console.log("pokonya mah error", error);
+                                                    return form.errorFormat(
+                                                        res,
+                                                        error,
+                                                        "Failed to reduce quantity"
+                                                    );
                                                 })
-                                                form.successFormat(
-                                                    res,
-                                                    result,
-                                                    "Successfully add new transaction!"
-                                                );
                                             } else {
                                                 return form.error(
                                                     res,

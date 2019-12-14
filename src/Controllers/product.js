@@ -36,7 +36,7 @@ module.exports = {
 				quantity = req.body.quantity.trim(),
 				description = req.body.description.trim(),
 				image = req.body.image.trim(),
-				id_category = req.body.id_category.trim();
+				id_category = req.body.id_category;
 
 			if (name === null || name === "" || name === undefined)
 				return form.error(res, "Product name can't be empty");
@@ -117,16 +117,15 @@ module.exports = {
 						name = name.trim();
 						if (name === null || name === "") {
 							return form.error(res, "Product name can't be empty");
-						}  
+						}
 					}
 
 					if (price !== undefined) {
-						price = price.trim();
 						if (price === null || price === "") {
 							return form.error(res, "Price can't be empty");
 						} else if (isNaN(price)) {
 							return form.error(res, "Price should be a number");
-						} else if (price <= 0){
+						} else if (price <= 0) {
 							return form.error(res, "Price can't below 0");
 						} else {
 							price = price;
@@ -134,7 +133,6 @@ module.exports = {
 					}
 
 					if (quantity !== undefined) {
-						quantity = quantity.trim();
 						if (quantity === null || quantity === "") {
 							return form.error(res, "Quantity can't be empty");
 						}
@@ -164,7 +162,6 @@ module.exports = {
 					}
 
 					if (id_category !== undefined) {
-						id_category = id_category.trim();
 						if (id_category === null || id_category === "") {
 							return form.error(res, "Category ID can't be empty");
 						}
@@ -180,22 +177,20 @@ module.exports = {
 					}
 
 					productModel.updateProduct(data, id)
-						.then(response => res.json({
-							status: 200,
-							message: 'Product has succesfully updated!',
-							result: {
-								id_product: parseInt(id),
-								name: name,
-								price: price,
-								quantity: quantity,
-								description: description,
-								image: image,
-								id_category: id_category,
-							},
-							response: response
-						}))
+						.then(response =>
+							productModel.getProduct(id)
+								.then(response2 =>
+									res.json({
+										status: 200,
+										message: 'Product has succesfully updated!',
+										result: response2[0]
+									}
+									)
+								)
+								.catch(err => console.log(err))
+						)
 						.catch(err => console.log(err));
-				
+
 				} else {
 					return form.error(res, "Product not found");
 				}

@@ -72,14 +72,14 @@ module.exports = {
 								message: "Succsessfully added category!",
 								response,
 								result: {
-									name: name
+									id_category: response.insertId,
+									name: name,
 								}
 							});
 						})
 						.catch(err => {
 							format.error(res, 'Error inserting data');
 							console.log(err);
-
 						});
 
 				} else {
@@ -109,7 +109,7 @@ module.exports = {
 						.updateCategory(data, id)
 						.then(response => {
 							res.json({
-								message: "Succsessfully updated category!",
+								message: "Successfully updated category!",
 								response,
 								result: {
 									id_category: parseInt(id),
