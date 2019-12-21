@@ -76,7 +76,15 @@ module.exports = {
 							.then(response => {
 								res.json({
 									result: {
-										data,
+										data: {
+											id_product: response.insertId,
+											name: name,
+											price: parseInt(price),
+											quantity: parseInt(quantity),
+											description: description,
+											image: image,
+											id_category: id_category
+										},
 										message: 'Succesfully added product!',
 										response,
 									}
