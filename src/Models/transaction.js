@@ -39,10 +39,10 @@ module.exports = {
 			});
 		});
 	},
-    addTransaction: (id) => {
+    addTransaction: (id, total) => {
         return new Promise ((resolve, reject) => {
 			connection.query (
-				`INSERT INTO transactions SET id_user = ${id}`, 
+				`INSERT INTO transactions SET id_user = ${id}, total_price = ${total}`, 
 				(err,response) => {
 				if (!err){
 					resolve (response);

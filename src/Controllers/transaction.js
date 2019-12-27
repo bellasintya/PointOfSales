@@ -73,14 +73,79 @@ module.exports = {
             })
     },
     addTransaction: (req, res) => {
-        let id_user = req.body.id_user;
-        transactionModel.addTransaction(id_user)
+        let id_user = req.body.id_user,
+            total_price = req.body.total_price,
+            { detail_transaction } = req.body;
+        console.log ("req.body", req.body);
+        transactionModel.addTransaction(id_user, total_price)
             .then(result => {
-                form.successFormat(
-                    res,
-                    result,
-                    "Successfully add new transaction!"
-                );
+                const id_transaction = result.insertId;
+                const details = detail_transaction.map(item => {
+                    return {
+                        id_product: item.id_product,
+                        price: item.last_price,
+                        quantity: item.qty,
+                        id_transaction: id_transaction
+                    }
+                })
+                details.forEach(async (data) => {
+                    productModel.getProduct(data.id_product)
+                        .then(result => {
+                            const item = result[0];
+                            if (item.quantity < 0) {
+                                return form.errorFormat(
+                                    res,
+                                    error,
+                                    "Product out of stock!"
+                                );
+                            } else {
+                                let qty = item.quantity - data.qty;
+                                productModel.reduceQuantity(qty, data.id_product)
+                                    .then(result => {
+                                        transactionModel.addDetails(data)
+                                            .then(result => {
+                                                const numPerPage = parseInt(req.query.limit) || null
+                                                const activePage = req.query.page || 1
+                                                const beginData = numPerPage * (activePage - 1)
+                                                const sort = req.query.sort || 'date_added'
+                                                const order = req.query.order || 'ASC'
+                                                const search = req.query.search || null
+                                                //const category = req.query.category || null
+                                                const queryCategory = (numPerPage !== null) ? `LIMIT ${beginData}, ${numPerPage}` : ''
+                                                const queryLimit = (numPerPage !== null) ? `LIMIT ${beginData}, ${numPerPage}` : ''
+                                                const querySearch = (search !== null) ? `AND product.name LIKE '%${search}%'` : ''
+
+                                                productModel.getProducts(queryLimit, sort, order, querySearch, queryCategory)
+                                                    .then(result =>
+                                                        res.json({
+                                                            message: "Succesfully add transaction",
+                                                            status: 200,
+                                                            result,
+                                                        })
+                                                    ).catch(error => {
+                                                        console.log(error);
+                                                        res.send('Cannot get products');
+                                                    });
+                                            })
+                                            .catch(error => {
+                                                console.log("error", error);
+                                            })
+                                    }).catch(error => {
+                                        return form.errorFormat(
+                                            res,
+                                            error,
+                                            "Failed to reduce quantity"
+                                        );
+                                    })
+                            }
+                        }).catch(error => {
+                            form.errorFormat(
+                                res,
+                                error,
+                                "Failed to get product!"
+                            );
+                        })
+                });
             })
             .catch(error => {
                 form.errorFormat(
@@ -98,7 +163,7 @@ module.exports = {
 
         if (id_transaction !== undefined) {
             id_transaction = id_transaction.trim();
-            if (id_transaction === null || id_transaction === "" ) {
+            if (id_transaction === null || id_transaction === "") {
                 return form.error(res, "Id_transaction can't be empty");
             }
         } else {
@@ -176,19 +241,19 @@ module.exports = {
                                             console.log(result);
                                             if (result !== 0) {
                                                 productModel.reduceQuantity(qty, id_product)
-                                                .then (result => {
-                                                    form.successFormat(
-                                                        res,
-                                                        result,
-                                                        "Successfully reduce quantity!"
-                                                    );
-                                                }).catch (error => {
-                                                    return form.errorFormat(
-                                                        res,
-                                                        error,
-                                                        "Failed to reduce quantity"
-                                                    );
-                                                })
+                                                    .then(result => {
+                                                        form.successFormat(
+                                                            res,
+                                                            result,
+                                                            "Successfully reduce quantity!"
+                                                        );
+                                                    }).catch(error => {
+                                                        return form.errorFormat(
+                                                            res,
+                                                            error,
+                                                            "Failed to reduce quantity"
+                                                        );
+                                                    })
                                             } else {
                                                 return form.error(
                                                     res,
