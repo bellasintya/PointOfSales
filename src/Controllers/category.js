@@ -57,11 +57,9 @@ module.exports = {
 				name = name;
 			}
 		}
-
 		let data = {
 			name: name
 		}
-
 		categoryModel
 			.getCategoryByName(name)
 			.then(result => {
@@ -74,7 +72,8 @@ module.exports = {
 								result: {
 									id_category: response.insertId,
 									name: name,
-								}
+								}, 
+								statue: 200
 							});
 						})
 						.catch(err => {
@@ -83,7 +82,7 @@ module.exports = {
 						});
 
 				} else {
-					return res.status(400).send({
+					return res.json({
 						status: 400,
 						message: 'Category does exist, try another category!'
 					})
@@ -114,26 +113,29 @@ module.exports = {
 								result: {
 									id_category: parseInt(id),
 									name: name,
-								}
+								},
+								status: 200,
 							});
 						})
 						.catch(err => {
-							res.send('Failed update category!');
+							res.json({
+								status: 400,
+								message: 'Failed update category!'
+							});
 							console.log(err);
 						});
 				}
 				else {
-					return res.status(400).send({
+					return res.json({
 						status: 400,
 						message: `Can't find category!`,
 						result
-					})
+					});
 				}
 			})
 			.catch(err => {
 				format.error(res, 'error updating category');
 				console.log(err);
-
 			})
 	},
 	deleteCategory: (req, res) => {
@@ -144,6 +146,7 @@ module.exports = {
 					categoryModel.deleteCategory(id)
 						.then(response => {
 							res.json({
+								status: 200,
 								message: "Succsessfully delete category!",
 								response,
 								result: {
@@ -151,12 +154,15 @@ module.exports = {
 								}
 							});
 						}).catch(err => {
-							res.status(400).send('Failed delete category!');
+							res.json({
+								status: 400,
+								message: 'Failed delete category!'
+							});
 							console.log(err);
 						});
 				}
 				else {
-					return res.status(400).send({
+					return res.json ({
 						status: 400,
 						message: `Can't find category!`
 					})

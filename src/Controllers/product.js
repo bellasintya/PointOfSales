@@ -76,18 +76,17 @@ module.exports = {
 							.then(response => {
 								res.json({
 									result: {
-										data: {
-											id_product: response.insertId,
-											name: name,
-											price: parseInt(price),
-											quantity: parseInt(quantity),
-											description: description,
-											image: image,
-											id_category: id_category
-										},
-										message: 'Succesfully added product!',
-										response,
-									}
+										id_product: response.insertId,
+										name: name,
+										price: parseInt(price),
+										quantity: parseInt(quantity),
+										description: description,
+										image: image,
+										id_category: id_category
+									},
+									status: 200,
+									message: 'Succesfully added product!',
+									response,
 								});
 							})
 							.catch(err => {
@@ -103,7 +102,7 @@ module.exports = {
 					console.log(err);
 				})
 		} else {
-			form.error(res, "Fill all the data required (name, price, quantity, description, image, id_category)");
+			form.error(res, "Fill all the data required!");
 		}
 	},
 	updateProduct: (req, res) => {
@@ -214,12 +213,10 @@ module.exports = {
 			.deleteProduct(id)
 			.then(response => {
 				res.json({
-					result: {
-						status: 200,
-						message: 'Product Deleted!',
-						id,
-						response,
-					}
+					status: 200,
+					message: 'Product Deleted!',
+					id,
+					response,
 				});
 			})
 			.catch(err => {
